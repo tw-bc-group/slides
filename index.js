@@ -1,19 +1,28 @@
 const fs = require("fs")
+const debug = require("debug")("slides")
 const fsEx = require('fs-extra');
 const path = require("path")
 const _ = require("lodash")
 const extractSlides = require("./scripts/extract_slides.js")
 const showSlides = require("./scripts/show_slides.js")
 
-const compiled = _.template(fs.readFileSync("./index.tpl", {encoding: "UTF-8"}))
+const compiledIndex = _.template(fs.readFileSync("./index.tpl", {encoding: "UTF-8"}))
+const compiled = _.template(fs.readFileSync("./slides.tpl", {encoding: "UTF-8"}))
 
-function main(src) {
-    link('lib', 'dest/lib', () => {
-        readMarkdowns(src)
-            .map(toSlides)
-            .map(renderHTML)
-            .forEach(writeHTML)
-    })
+async function main(src) {
+    await link('lib', 'build/lib')
+    let list = readMarkdowns(src)
+        .map(toSlides)
+        .map(renderHTML)
+        .map(writeHTML)
+        .map(toIndex)
+
+    writeIndexPage(list)
+}
+
+function writeIndexPage(list) {
+    let indexes = compiledIndex({list: list.join('\n')})
+    writeHTML({fileName: 'index.html', html: indexes})
 }
 
 function readMarkdowns(path) {
@@ -33,26 +42,20 @@ function renderHTML({fileName, slides}) {
 }
 
 function writeHTML({fileName, html}) {
-    fs.writeFileSync(`dest/${fileName}`, html)
+    fs.writeFileSync(`build/${fileName}`, html)
+    return fileName
 }
 
-function link(lib, dest, cb) {
-    fsEx.ensureDir(dest, err => {
-        if(err) {
-            console.error(err)
-        } else {
-            console.log("ensure", dest, "exists")
-            cb()
-        }
-    })
+function toIndex(fileName) {
+    return `<li><a href='./${fileName}'>${fileName}</a></li>`
+}
 
-    fsEx.copy(lib, dest, err => {
-        if(err) {
-            console.error(err)
-        } else {
-            console.log("success copy from", lib, "to", dest)
-        }
-    })
+
+async function link(lib, dest) {
+    await fsEx.ensureDir(dest)
+    console.log(`ensure dir: ${dest}`)
+    await fsEx.copy(lib, dest)
+    console.log(`copy from ${lib} to ${dest}`)
 }
 
 main('src')
