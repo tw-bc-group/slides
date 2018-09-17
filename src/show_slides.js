@@ -10,7 +10,7 @@ function showSlides(slides) {
         sectionArray.push("<section class='slide'>")
         sectionArray.push(titlize(title))
         sectionArray.push(subtitlize(subtitle))
-        sectionArray.push(_.map(bodies, function(body) { return bodize(body) }).join("\n"))
+        sectionArray.push(_.map(bodies, (body) => bodize(body)).join("\n"))
         sectionArray.push("</section>")
 
         sections.push(sectionArray.join("\n"))
@@ -31,44 +31,56 @@ function subtitlize(subtitle) {
 
 function bodize(body) {
     let {rawText, listMarkers} = body
-    let head = 0, last = rawText.length - 1, listOfHTML = []
+    let head = 0, last = rawText.length - 1, listOfHTML = [], bodyStr = ""
 
     if(!_.isEmpty(listMarkers)) {
         head = _.head(listMarkers).start
         last = _.last(listMarkers).end
         listOfHTML = _.map(listMarkers, function(listMaker) {
-           let {start, end, type} = listMaker
+            let {start, end, type} = listMaker
 
-           let textList = rawText.substring(start, end).trim().split("\n")
+            let textList = rawText.substring(start, end).trim().split("\n")
 
-           let listOfHTML = _.map(textList, function(text) {
-               return "<li>" + text + "</li>"
-           })
+            let list = _.map(textList, (text) => `<li>${text}</li>`).join('\n')
 
-           if(type === "ordered") {
-               return ("<ol>" + listOfHTML.join("\n") +"</ol>")
-           } else {
-               return ("<ul>" + listOfHTML.join("\n") +"</ul>")
-           }
-       })
+            if(type === "ordered") {
+                return `<ol>${list}</ol>`
+            } else {
+                return `<ul>${list}</ul>`
+            }
+        }).join('\n');
+       
+        bodyStr += beforeList(head, rawText)
+
+        bodyStr += listOfHTML
+
+        bodyStr += afterList(last, rawText)
+
+    } else { // only paragraph
+        let p = rawText.trim()
+        bodyStr = `<p>${p}</p>`
     }
 
-    let result = ""
+return bodyStr
+}
+
+function beforeList(head, text) {
+    let body = ""
     if(head > 0) {
-        result += "<p>" + rawText.substring(0, head).trim() + "</p>\n"
+        let p = text.substring(0, head).trim() 
+        body = `<p>${p}</p>`
+    }
+    return body
+}
+
+function afterList(last, text) {
+    let body = ""
+    if(last < text.length - 1) {
+        let p = text.substring(last).trim() 
+        body = `<p>${p}</p>`
     }
 
-    result += listOfHTML.join('\n')
-
-    if(last < rawText.length - 1) {
-        result += "<p>" + rawText.substring(last).trim() + "</p>"
-    }
-
-    if(head == 0 && last == rawText.length - 1) {
-        result = "<p>"+rawText.trim()+"</p>"
-    }
-
-    return result
+    return body
 }
 
 
