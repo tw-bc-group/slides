@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Shower Presentation Engine</title>
+    <title>TW Blockchain Core Team</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,6 +29,5 @@
     <div class="progress"></div>
 
     <script src="node_modules/shower-core/shower.min.js"></script>
-    <!-- Copyright © 2018 Yours Truly, Famous Inc. -->
   </body>
 </html>

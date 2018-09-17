@@ -1,9 +1,9 @@
 const fs = require("fs")
 const _ = require("lodash")
-const extractSlides = require("./src/extract_slides.js")
-const showSlides = require("./src/show_slides.js")
+const extractSlides = require("./scripts/extract_slides.js")
+const showSlides = require("./scripts/show_slides.js")
 
-const src = fs.readFileSync("./slides.md", {encoding: "UTF-8"})
+const src = fs.readFileSync("./src/slides.md", {encoding: "UTF-8"})
 const slides = showSlides(extractSlides(src))
 
 const template = fs.readFileSync("./index.tpl", {encoding: "UTF-8"})
