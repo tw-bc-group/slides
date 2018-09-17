@@ -1,4 +1,5 @@
 const fs = require("fs")
+const fsEx = require('fs-extra');
 const path = require("path")
 const _ = require("lodash")
 const extractSlides = require("./scripts/extract_slides.js")
@@ -7,10 +8,12 @@ const showSlides = require("./scripts/show_slides.js")
 const compiled = _.template(fs.readFileSync("./index.tpl", {encoding: "UTF-8"}))
 
 function main(src) {
-    readMarkdowns(src)
-    .map(toSlides)
-    .map(renderHTML)
-    .forEach(writeHTML)
+    link('lib', 'dest/lib', () => {
+        readMarkdowns(src)
+            .map(toSlides)
+            .map(renderHTML)
+            .forEach(writeHTML)
+    })
 }
 
 function readMarkdowns(path) {
@@ -31,6 +34,25 @@ function renderHTML({fileName, slides}) {
 
 function writeHTML({fileName, html}) {
     fs.writeFileSync(`dest/${fileName}`, html)
+}
+
+function link(lib, dest, cb) {
+    fsEx.ensureDir(dest, err => {
+        if(err) {
+            console.error(err)
+        } else {
+            console.log("ensure", dest, "exists")
+            cb()
+        }
+    })
+
+    fsEx.copy(lib, dest, err => {
+        if(err) {
+            console.error(err)
+        } else {
+            console.log("success copy from", lib, "to", dest)
+        }
+    })
 }
 
 main('src')

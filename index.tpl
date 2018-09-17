@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="../lib/shower-ribbon/styles/styles.css">
+    <link rel="stylesheet" href="lib/shower-ribbon/styles/styles.css">
 
     <style>
       .shower {
@@ -28,6 +28,6 @@
 
     <div class="progress"></div>
 
-    <script src="../lib/shower.min.js"></script>
+    <script src="lib/shower.min.js"></script>
   </body>
 </html>
