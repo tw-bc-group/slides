@@ -16,8 +16,8 @@
 
   <body class="shower list">
     <header class="caption">
-      <h1>Shower Presentation Engine</h1>
-      <p>Yours Truly, Famous Inc.</p>
+      <h1>TW Blockchain Core Team Slides</h1>
+      <p>Tech@Core</p>
     </header>
 
     <%= slides %>
