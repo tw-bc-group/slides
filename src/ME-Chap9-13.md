@@ -516,7 +516,116 @@ potentially add a time-based state progression in the event that the desired cal
 comes.
 Of
 
+# Unexpected Ether
+```
+contract EtherGame {
 
+    uint public payoutMileStone1 = 3 ether;
+    uint public mileStone1Reward = 2 ether;
+    uint public payoutMileStone2 = 5 ether;
+    uint public mileStone2Reward = 3 ether;
+    uint public finalMileStone = 10 ether;
+    uint public finalReward = 5 ether;
+
+    mapping(address => uint) redeemableEther;
+    // Users pay 0.5 ether. At specific milestones, credit their accounts.
+    function play() external payable {
+        require(msg.value == 0.5 ether); // each play is 0.5 ether
+        uint currentBalance = this.balance + msg.value; // this.balance can be changed in anexpected way.
+        // ensure no players after the game has finished
+        require(currentBalance <= finalMileStone);
+        // if at a milestone, credit the player's account
+        if (currentBalance == payoutMileStone1) {
+            redeemableEther[msg.sender] += mileStone1Reward;
+        }
+        else if (currentBalance == payoutMileStone2) {
+            redeemableEther[msg.sender] += mileStone2Reward;
+        }
+        else if (currentBalance == finalMileStone ) {
+            redeemableEther[msg.sender] += finalReward;
+        }
+        return;
+    }
+
+    function claimReward() public {
+        // ensure the game is complete
+        require(this.balance == finalMileStone);
+        // ensure there is a reward to give
+        require(redeemableEther[msg.sender] > 0);
+        redeemableEther[msg.sender] = 0;
+        msg.sender.transfer(transferValue);
+    }
+ }
+```
+
+---
+# Preventative Techniques
+```
+contract EtherGame {
+
+    uint public payoutMileStone1 = 3 ether;
+    uint public mileStone1Reward = 2 ether;
+    uint public payoutMileStone2 = 5 ether;
+    uint public mileStone2Reward = 3 ether;
+    uint public finalMileStone = 10 ether;
+    uint public finalReward = 5 ether;
+    uint public depositedWei;
+
+    mapping (address => uint) redeemableEther;
+
+    function play() external payable {
+        require(msg.value == 0.5 ether);
+        uint currentBalance = depositedWei + msg.value;
+        // ensure no players after the game has finished
+        require(currentBalance <= finalMileStone);
+        if (currentBalance == payoutMileStone1) {
+            redeemableEther[msg.sender] += mileStone1Reward;
+        }
+        else if (currentBalance == payoutMileStone2) {
+            redeemableEther[msg.sender] += mileStone2Reward;
+        }
+        else if (currentBalance == finalMileStone ) {
+            redeemableEther[msg.sender] += finalReward;
+        }
+        depositedWei += msg.value;
+        return;
+    }
+
+    function claimReward() public {
+        // ensure the game is complete
+        require(depositedWei == finalMileStone);
+        // ensure there is a reward to give
+        require(redeemableEther[msg.sender] > 0);
+        redeemableEther[msg.sender] = 0;
+        msg.sender.transfer(transferValue);
+    }
+ }
+```
+---
+
+# Block Timestamp Manipulation
+
+```
+contract Roulette {
+    uint public pastBlockTime; // forces one bet per block 
+
+    constructor() public payable {} // initially fund contract
+
+    // fallback function used to make a bet
+    function () public payable {
+        require(msg.value == 10 ether); // must send 10 ether to play
+        require(now != pastBlockTime);  // only 1 transaction per block
+        pastBlockTime = now;
+        if(now % 15 == 0) { // winner
+            msg.sender.transfer(this.balance);
+        } 
+    }
+}
+```
+---
+# Preventative Techniques
+
+It is sometimes recommended to use `block.number` and an average block time to estimate times; with a `10 second block time`, 1 week equates to approximately, 60480 blocks. Thus, specifying a block number at which to change a contract state can be more secure, as miners are unable easily to manipulate the block number.
 
 ---
 ### Block Timestamp Manipulation in depth
