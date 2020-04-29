@@ -516,7 +516,7 @@ potentially add a time-based state progression in the event that the desired cal
 comes.
 Of
 
-# Unexpected Ether
+### Unexpected Ether
 ```
 contract EtherGame {
 
@@ -559,7 +559,7 @@ contract EtherGame {
 ```
 
 ---
-# Preventative Techniques
+#### Preventative Techniques
 ```
 contract EtherGame {
 
@@ -603,7 +603,7 @@ contract EtherGame {
 ```
 ---
 
-# Block Timestamp Manipulation
+### Block Timestamp Manipulation
 
 ```
 contract Roulette {
@@ -623,12 +623,12 @@ contract Roulette {
 }
 ```
 ---
-# Preventative Techniques
+#### Preventative Techniques
 
 It is sometimes recommended to use `block.number` and an average block time to estimate times; with a `10 second block time`, 1 week equates to approximately, 60480 blocks. Thus, specifying a block number at which to change a contract state can be more secure, as miners are unable easily to manipulate the block number.
 
 ---
-### Block Timestamp Manipulation in depth
+#### Block Timestamp Manipulation in depth
 ```go
 // miner/worker.go Line-834 
 if parent.Time() >= uint64(timestamp) {
